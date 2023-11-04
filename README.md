@@ -10,9 +10,11 @@ Antes de ejecutar la API, asegúrate de tener instaladas las dependencias necesa
 
 ```bash
 pip install -r requirements.txt
+```
 
 ## Ejecutar
 
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000
+```
 
