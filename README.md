@@ -31,4 +31,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 • GET /empresas: Obtiene una lista de todas las empresas.
 
+## Documentación
+
+Documentación cread automáticamente con FastApi usando OpenAoi y Swagger
 
