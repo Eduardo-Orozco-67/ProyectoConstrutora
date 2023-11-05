@@ -1,9 +1,8 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from db import get_connection
+from conexion.db import get_connection
 
-app = FastAPI()
-
+appEmpresa = APIRouter()
 
 # Modelo Pydantic para la tabla empresa
 class Empresa(BaseModel):
@@ -14,7 +13,7 @@ class Empresa(BaseModel):
 
 
 # Crear una nueva empresa
-@app.post("/empresa/", response_model=Empresa)
+@appEmpresa.post("/create/", response_model=Empresa)
 def create_empresa(empresa: Empresa):
     connection = get_connection()
     cursor = connection.cursor()
@@ -32,7 +31,7 @@ def create_empresa(empresa: Empresa):
 
 
 # Obtener una empresa por su ID
-@app.get("/empresa/{empresa_id}", response_model=Empresa)
+@appEmpresa.get("/ver1/{empresa_id}", response_model=Empresa)
 def get_empresa(empresa_id: int):
     connection = get_connection()
     cursor = connection.cursor()
@@ -50,7 +49,7 @@ def get_empresa(empresa_id: int):
 
 
 # Actualizar una empresa por su ID
-@app.put("/empresa/{empresa_id}", response_model=Empresa)
+@appEmpresa.put("/update/{empresa_id}", response_model=Empresa)
 def update_empresa(empresa_id: int, empresa: Empresa):
     connection = get_connection()
     cursor = connection.cursor()
@@ -71,7 +70,7 @@ def update_empresa(empresa_id: int, empresa: Empresa):
 
 
 # Eliminar una empresa por su ID
-@app.delete("/empresa/{empresa_id}", response_model=dict)
+@appEmpresa.delete("/delete/{empresa_id}", response_model=dict)
 def delete_empresa(empresa_id: int):
     connection = get_connection()
     cursor = connection.cursor()
@@ -84,7 +83,7 @@ def delete_empresa(empresa_id: int):
 
 
 # Obtener todas las empresas
-@app.get("/empresas", response_model=list[Empresa])
+@appEmpresa.get("/ver-todas", response_model=list[Empresa])
 def get_empresas():
     connection = get_connection()
     cursor = connection.cursor()

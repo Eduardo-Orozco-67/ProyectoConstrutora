@@ -19,6 +19,13 @@ Para ejecutar este proyecto ejecuta el siguiente comando en tu bash o powershell
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
+
+Para reiniciar este proyecto
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
 ## Rutas de la API
 
 • POST /empresa/: Crea una nueva empresa.
