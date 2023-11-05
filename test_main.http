@@ -1,11 +1,350 @@
 # Test your FastAPI endpoints
 
+# 1 Empresas
 GET http://127.0.0.1:8000/empresas
 Accept: application/json
 
 ###
-
 GET http://127.0.0.1:8000/empresa/1
 Accept: application/json
 
 ###
+POST http://127.0.0.1:8000/empresa/
+Content-Type: application/json
+Accept: application/json
+{
+  "nombre": "Empresa1",
+  "direccion": "Dirección1",
+  "telefono": 1234567890,
+  "correo": "empresa1@example.com"
+}
+
+###
+PUT http://127.0.0.1:8000/empresa/1
+Content-Type: application/json
+Accept: application/json
+{
+  "nombre": "Empresa1 Actualizada",
+  "direccion": "Nueva Dirección1",
+  "telefono": 9876543210,
+  "correo": "nueva_empresa1@example.com"
+}
+
+###
+DELETE http://127.0.0.1:8000/empresa/1
+Accept: application/json
+
+
+
+
+# 2 Solicitud de Proyecto
+
+###
+GET http://127.0.0.1:8000/solicitudes_proyecto
+Accept: application/json
+
+###
+GET http://127.0.0.1:8000/solicitud_proyecto/1
+Accept: application/json
+
+###
+POST http://127.0.0.1:8000/solicitud_proyecto/
+Content-Type: application/json
+Accept: application/json
+{
+  "id_empresa": 1,
+  "fecha": "2023-11-04",
+  "monto_presupuesto": 10000.00,
+  "monto_anticipo": 5000.00,
+  "folio_solicitud": "SOL-2023-001",
+  "estado": "Pendiente"
+}
+
+###
+PUT http://127.0.0.1:8000/solicitud_proyecto/1
+Content-Type: application/json
+Accept: application/json
+{
+  "id_empresa": 1,
+  "fecha": "2023-11-04",
+  "monto_presupuesto": 12000.00,
+  "monto_anticipo": 6000.00,
+  "folio_solicitud": "SOL-2023-002",
+  "estado": "Aprobada"
+}
+
+###
+DELETE http://127.0.0.1:8000/solicitud_proyecto/1
+Accept: application/json
+
+
+
+
+# 3 Proyecto
+
+###
+GET http://127.0.0.1:8000/proyectos
+Accept: application/json
+
+###
+GET http://127.0.0.1:8000/proyecto/1
+Accept: application/json
+
+###
+POST http://127.0.0.1:8000/proyecto/create/
+Content-Type: application/json
+Accept: application/json
+{
+  "id_empresa": 1,
+  "id_solicitud": 1,
+  "fecha_inicio": "2023-11-04",
+  "fecha_fin": "2023-12-31",
+  "monto": 15000.00,
+  "prioridad": "Alta",
+  "porcentaje_avance": 0.0,
+  "estado_proyecto": "En Progreso"
+}
+
+###
+PUT http://127.0.0.1:8000/proyecto/update/1
+Content-Type: application/json
+Accept: application/json
+{
+  "id_empresa": 1,
+  "id_solicitud": 2,
+  "fecha_inicio": "2023-11-04",
+  "fecha_fin": "2024-01-31",
+  "monto": 18000.00,
+  "prioridad": "Media",
+  "porcentaje_avance": 10.0,
+  "estado_proyecto": "Completado"
+}
+
+###
+DELETE http://127.0.0.1:8000/proyecto/delete/1
+Accept: application/json
+
+
+
+
+# 4 Servicio
+
+###
+GET http://127.0.0.1:8000/servicios
+Accept: application/json
+
+###
+GET http://127.0.0.1:8000/servicio/1
+Accept: application/json
+
+###
+POST http://127.0.0.1:8000/servicio/create/
+Content-Type: application/json
+Accept: application/json
+{
+  "servicio": "Servicio1",
+  "descripcion": "Descripción del Servicio1"
+}
+
+###
+PUT http://127.0.0.1:8000/servicio/update/1
+Content-Type: application/json
+Accept: application/json
+{
+  "servicio": "Servicio1 Actualizado",
+  "descripcion": "Nueva Descripción del Servicio1"
+}
+
+###
+DELETE http://127.0.0.1:8000/servicio/delete/1
+Accept: application/json
+
+
+
+
+# 5 Detalle de Solicitud
+
+###
+GET http://127.0.0.1:8000/detalles_solicitud
+Accept: application/json
+
+###
+GET http://127.0.0.1:8000/detalle_solicitud/1
+Accept: application/json
+
+###
+POST http://127.0.0.1:8000/detalle_solicitud/create/
+Content-Type: application/json
+Accept: application/json
+{
+  "id_solicitud": 1,
+  "descripcion": "Detalle de Solicitud 1",
+  "costo": 500.00
+}
+
+###
+PUT http://127.0.0.1:8000/detalle_solicitud/update/1
+Content-Type: application/json
+Accept: application/json
+{
+  "id_solicitud": 1,
+  "descripcion": "Detalle de Solicitud 1 Actualizado",
+  "costo": 600.00
+}
+
+###
+DELETE http://127.0.0.1:8000/detalle_solicitud/delete/1
+Accept: application/json
+
+
+
+
+# 6 Servicio Detalle de Solicitud
+
+###
+GET http://127.0.0.1:8000/servicios_detalle_solicitud
+Accept: application/json
+
+###
+GET http://127.0.0.1:8000/servicio_detalle_solicitud/1
+Accept: application/json
+
+###
+POST http://127.0.0.1:8000/servicio_detalle_solicitud/create/
+Content-Type: application/json
+Accept: application/json
+{
+  "id_servicio": 1,
+  "id_detalle_solicitud": 1,
+  "id_solicitud": 1
+}
+
+###
+PUT http://127.0.0.1:8000/servicio_detalle_solicitud/update/1
+Content-Type: application.json
+Accept: application/json
+{
+  "id_servicio": 1,
+  "id_detalle_solicitud": 1,
+  "id_solicitud": 2
+}
+
+###
+DELETE http://127.0.0.1:8000/servicio_detalle_solicitud/delete/1
+Accept: application/json
+
+
+
+
+# 7 Supervisor
+
+###
+GET http://127.0.0.1:8000/supervisores
+Accept: application/json
+
+###
+GET http://127.0.0.1:8000/supervisor/1
+Accept: application/json
+
+###
+POST http://127.0.0.1:8000/supervisor/create/
+Content-Type: application/json
+Accept: application/json
+{
+  "nombre": "Supervisor1",
+  "cargo": "Cargo del Supervisor1",
+  "telefono": 1234567890,
+  "correo": "supervisor1@example.com"
+}
+
+###
+PUT http://127.0.0.1:8000/supervisor/update/1
+Content-Type: application/json
+Accept: application/json
+{
+  "nombre": "Supervisor1 Actualizado",
+  "cargo": "Nuevo Cargo del Supervisor1",
+  "telefono": 9876543210,
+  "correo": "nuevo_supervisor1@example.com"
+}
+
+###
+DELETE http://127.0.0.1:8000/supervisor/delete/1
+Accept: application/json
+
+
+
+
+# 8 Proyecto Supervisor
+
+###
+GET http://127.0.0.1:8000/proyectos_supervisor
+Accept: application/json
+
+###
+GET http://127.0.0.1:8000/proyecto_supervisor/1
+Accept: application/json
+
+###
+POST http://127.0.0.1:8000/proyecto_supervisor/create/
+Content-Type: application/json
+Accept: application/json
+{
+  "id_proyecto": 1,
+  "id_supervisor": 1
+}
+
+###
+PUT http://127.0.0.1:8000/proyecto_supervisor/update/1
+Content-Type: application/json
+Accept: application/json
+{
+  "id_proyecto": 2,
+  "id_supervisor": 1
+}
+
+###
+DELETE http://127.0.0.1:8000/proyecto_supervisor/delete/1
+Accept: application/json
+
+
+
+
+# 9 Colaborador
+
+###
+GET http://127.0.0.1:8000/colaboradores
+Accept: application/json
+
+###
+GET http://127.0.0.1:8000/colaborador/1
+Accept: application/json
+
+###
+POST http://127.0.0.1:8000/colaborador/create/
+Content-Type: application/json
+Accept: application/json
+{
+  "id_supervisor": 1,
+  "nombre": "Colaborador1",
+  "cargo": "Cargo del Colaborador1",
+  "telefono": 1234567890,
+  "correo": "colaborador1@example.com"
+}
+
+###
+PUT http://127.0.0.1:8000/colaborador/update/1
+Content-Type: application/json
+Accept: application/json
+{
+  "id_supervisor": 1,
+  "nombre": "Colaborador1 Actualizado",
+  "cargo": "Nuevo Cargo del Colaborador1",
+  "telefono": 9876543210,
+  "correo": "nuevo_colaborador1@example.com"
+}
+
+###
+DELETE http://127.0.0.1:8000/colaborador/delete/1
+Accept: application/json
+
