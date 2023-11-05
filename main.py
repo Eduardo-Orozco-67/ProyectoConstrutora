@@ -9,7 +9,7 @@ from api.servicio import appServicio
 from api.detalleSolicitud import appDetalleSolicitud
 from api.servicioDetalleSolicitud import appServicioDetalleSolicitud
 from api.supervisor import appSupervisor
-from api.proyectoSolicitud import appProyectoSupervisor
+from api.proyectoSupervisor import appProyectoSupervisor
 from api.colaborador import appColaborador
 
 ###para configurar swagger openapi
