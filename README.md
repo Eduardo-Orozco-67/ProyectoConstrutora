@@ -62,7 +62,24 @@ Elimina una solicitud de proyecto por su ID.
 ### - GET /solicitudes_proyecto/ver-todas/
 Obtiene una lista de todas las solicitudes de proyecto.
 
-## 3. API Servicio
+## 3. API Proyecto
+
+### - POST /proyecto/create/
+Crea un nuevo proyecto.
+
+### - GET /proyecto/ver1/{proyecto_id}
+Obtiene un proyecto por su ID.
+
+### - PUT /proyecto/update/{proyecto_id}
+Actualiza un proyecto por su ID.
+
+### - DELETE /proyecto/delete/{proyecto_id}
+Elimina un proyecto por su ID.
+
+### - GET /proyectos/ver-todos/
+Obtiene una lista de todos los proyectos.
+
+## 4. API Servicio
 
 ### - POST /servicio/create/
 Crea un nuevo servicio.
@@ -79,7 +96,7 @@ Elimina un servicio por su ID.
 ### - GET /servicios/ver-todos/
 Obtiene una lista de todos los servicios.
 
-## 4. API Detalle de Solicitud
+## 5. API Detalle de Solicitud
 
 ### - POST /detalle_solicitud/create/
 Crea un nuevo detalle de solicitud.
@@ -96,7 +113,7 @@ Elimina un detalle de solicitud por su ID.
 ### - GET /detalles_solicitud/ver-todos/
 Obtiene una lista de todos los detalles de solicitud.
 
-## 5. API Servicio Detalle de Solicitud
+## 6. API Servicio Detalle de Solicitud
 
 ### - POST /servicio_detalle_solicitud/create/
 Crea un nuevo registro de servicio en detalle de solicitud.
@@ -113,7 +130,7 @@ Elimina un registro de servicio en detalle de solicitud por su ID.
 ### - GET /servicios_detalle_solicitud/ver-todos/
 Obtiene una lista de todos los registros de servicios en detalles de solicitud.
 
-## 6. API Supervisor
+## 7. API Supervisor
 
 ### - POST /supervisor/create/
 Crea un nuevo supervisor.
@@ -130,7 +147,7 @@ Elimina un supervisor por su ID.
 ### - GET /supervisores/ver-todos/
 Obtiene una lista de todos los supervisores.
 
-## 7. API Proyecto Supervisor
+## 8. API Proyecto Supervisor
 
 ### - POST /proyecto_supervisor/create/
 Crea un nuevo registro de proyecto-supervisor.
@@ -147,7 +164,7 @@ Elimina un registro de proyecto-supervisor por su ID.
 ### - GET /proyectos_supervisor/ver-todos/
 Obtiene una lista de todos los registros de proyecto-supervisor.
 
-## 8. API Colaborador
+## 9. API Colaborador
 
 ### - POST /colaborador/create/
 Crea un nuevo colaborador.
