@@ -1,8 +1,8 @@
 # ProyectoConstrutora
 
-# API de la constructlra con FastAPI y PostgreSQL
+# API de la constructora con FastAPI y PostgreSQL
 
-Esta es una API REST de ejemplo para gestionar empresas utilizando FastAPI como framework web y PostgreSQL como base de datos. Proporciona operaciones CRUD (Crear, Leer, Actualizar y Eliminar) para la entidad "empresa".
+Esta es una API REST de ejemplo para gestionar empresas utilizando FastAPI como framework web y PostgreSQL como base de datos. Proporciona operaciones CRUD (Crear, Leer, Actualizar y Eliminar) para la gestion de proyectos de una constructora.
 
 ## Configuración
 
