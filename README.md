@@ -35,4 +35,4 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 Documentación cread automáticamente con FastApi usando OpenAoi y Swagger
 
-[http://localhost:8000/docs](http://localhost:8000/docs)
+[http://localhost:8000/docs](http://localhost:8000/docs#/default)
