@@ -1,5 +1,6 @@
 ###importamos fastApi para crear la aplicacion
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 ##importamos los archivos que tienen los endpoints
 from api.empresa import appEmpresa
@@ -20,6 +21,20 @@ app = FastAPI(title="APIRest de Constructora S.A de C.V",
     version="1.0.0",
     openapi_url="/custom_openapi.json" )
 
+# Configuración de CORS para permitir solicitudes desde 'http://localhost:5173'
+origins = [
+    "http://localhost:5173",  # Agrega aquí el origen de tu aplicación cliente
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 ###incluimos los router de las api
 app.include_router(appEmpresa, prefix="/empresa", tags=["empresa"])
 app.include_router(appSolicitudProyecto, prefix="/solicitud_proyecto", tags=["solicitud_proyecto"])
@@ -30,6 +45,8 @@ app.include_router(appServicioDetalleSolicitud, prefix="/servicio_detalle_solici
 app.include_router(appSupervisor, prefix="/supervisor", tags=["supervisor"])
 app.include_router(appProyectoSupervisor, prefix="/proyecto_supervisor", tags=["proyecto_supervisor"])
 app.include_router(appColaborador, prefix="/colaborador", tags=["colaborador"])
+
+#localhost:8000/prefijo/metodo(get, update, etc)
 
 if __name__ == "__main__":
     import uvicorn
