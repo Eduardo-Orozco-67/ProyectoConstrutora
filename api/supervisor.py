@@ -11,65 +11,94 @@ class Supervisor(BaseModel):
     telefono: int
     correo: str
 
-# Crear un nuevo supervisor
+# Crear un supervisor
 @appSupervisor.post("/create/", response_model=Supervisor)
 def create_supervisor(supervisor: Supervisor):
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute(
-        "INSERT INTO supervisor (nombre, cargo, telefono, correo) VALUES (%s, %s, %s, %s) RETURNING id_supervisor",
-        (supervisor.nombre, supervisor.cargo, supervisor.telefono, supervisor.correo),
-    )
+    try:
+        # Verificar si ya existe un supervisor con el mismo teléfono o correo
+        cursor.execute("SELECT id_supervisor FROM supervisor WHERE telefono = %s OR correo = %s",
+                       (supervisor.telefono, supervisor.correo))
+        existing_supervisor = cursor.fetchone()
 
-    new_supervisor_id = cursor.fetchone()[0]
-    connection.commit()
-    connection.close()
+        if existing_supervisor:
+            raise HTTPException(status_code=400, detail="Ya existe un supervisor con el mismo teléfono o correo")
+
+        # Insertar el nuevo supervisor
+        cursor.execute(
+            "INSERT INTO supervisor (nombre, cargo, telefono, correo) VALUES (%s, %s, %s, %s) RETURNING id_supervisor",
+            (supervisor.nombre, supervisor.cargo, supervisor.telefono, supervisor.correo),
+        )
+
+        new_supervisor_id = cursor.fetchone()[0]
+        connection.commit()
+
+    except Exception as e:
+        connection.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al crear el supervisor: {str(e)}")
+
+    finally:
+        connection.close()
 
     return {**supervisor.dict(), "id_supervisor": new_supervisor_id}
 
 # Obtener un supervisor por su ID
-@appSupervisor.get("/ver/{supervisor_id}", response_model=Supervisor)
-def get_supervisor(supervisor_id: int):
+@appSupervisor.get("/ver1/{telefono}/{correo}", response_model=Supervisor)
+def get_supervisor(telefono: int, correo: str):
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute("SELECT nombre, cargo, telefono, correo FROM supervisor WHERE id_supervisor = %s", (supervisor_id,))
+    cursor.execute("SELECT id_supervisor, nombre, cargo FROM supervisor WHERE telefono = %s AND correo = %s", (telefono, correo))
     supervisor = cursor.fetchone()
     connection.close()
 
     if supervisor is None:
         raise HTTPException(status_code=404, detail="Supervisor no encontrado")
 
-    return {"id_supervisor": supervisor_id, "nombre": supervisor[0], "cargo": supervisor[1], "telefono": supervisor[2], "correo": supervisor[3]}
+    return {"id_supervisor": supervisor[0], "nombre": supervisor[1], "cargo": supervisor[2], "telefono": telefono, "correo": correo}
 
-# Actualizar un supervisor por su ID
-@appSupervisor.put("/update/{supervisor_id}", response_model=Supervisor)
-def update_supervisor(supervisor_id: int, supervisor: Supervisor):
+# Actualizar un supervisor por su teléfono y correo
+@appSupervisor.put("/update/{telefono}/{correo}", response_model=Supervisor)
+def update_supervisor(telefono: str, correo: str, supervisor: Supervisor):
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute(
-        "UPDATE supervisor SET nombre=%s, cargo=%s, telefono=%s, correo=%s WHERE id_supervisor = %s RETURNING id_supervisor",
-        (supervisor.nombre, supervisor.cargo, supervisor.telefono, supervisor.correo, supervisor_id),
-    )
+    try:
+        # Verificar si existe un supervisor con el nuevo teléfono o correo
+        cursor.execute("SELECT id_supervisor FROM supervisor WHERE (telefono = %s OR correo = %s) AND (telefono != %s OR correo != %s)",
+                       (supervisor.telefono, supervisor.correo, telefono, correo))
+        existing_supervisor = cursor.fetchone()
 
-    updated_supervisor_id = cursor.fetchone()[0]
-    connection.commit()
-    connection.close()
+        if existing_supervisor:
+            raise HTTPException(status_code=400, detail="Ya existe un supervisor con el mismo teléfono o correo")
 
-    if updated_supervisor_id is None:
-        raise HTTPException(status_code=404, detail="Supervisor no encontrado")
+        # Actualizar el supervisor
+        cursor.execute(
+            "UPDATE supervisor SET nombre=%s, cargo=%s, telefono=%s, correo=%s WHERE telefono = %s AND correo = %s RETURNING id_supervisor",
+            (supervisor.nombre, supervisor.cargo, supervisor.telefono, supervisor.correo, telefono, correo),
+        )
+
+        updated_supervisor_id = cursor.fetchone()[0]
+        connection.commit()
+
+    except Exception as e:
+        connection.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al actualizar el supervisor: {str(e)}")
+
+    finally:
+        connection.close()
 
     return {**supervisor.dict(), "id_supervisor": updated_supervisor_id}
 
-# Eliminar un supervisor por su ID
-@appSupervisor.delete("/delete/{supervisor_id}", response_model=dict)
-def delete_supervisor(supervisor_id: int):
+# Eliminar un supervisor por su teléfono y correo
+@appSupervisor.delete("/delete/{telefono}/{correo}", response_model=dict)
+def delete_supervisor(telefono: str, correo: str):
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute("DELETE FROM supervisor WHERE id_supervisor = %s", (supervisor_id,))
+    cursor.execute("DELETE FROM supervisor WHERE telefono = %s AND correo = %s", (telefono, correo))
     connection.commit()
     connection.close()
 
