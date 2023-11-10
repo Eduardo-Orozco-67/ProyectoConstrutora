@@ -14,6 +14,7 @@ class ProyectoSupervisor(BaseModel):
 def create_proyecto_supervisor(proyecto_supervisor: ProyectoSupervisor):
     connection = get_connection()
     cursor = connection.cursor()
+    #buscar por nombre de super y el folio de la soli_proyec
 
     cursor.execute(
         "INSERT INTO proyecto_supervisor (id_proyecto, id_supervisor) VALUES (%s, %s) RETURNING id_proyecto_supervisor",
@@ -31,7 +32,7 @@ def create_proyecto_supervisor(proyecto_supervisor: ProyectoSupervisor):
 def get_proyecto_supervisor(proyecto_supervisor_id: int):
     connection = get_connection()
     cursor = connection.cursor()
-
+    # buscar por nombre de super
     cursor.execute("SELECT id_proyecto, id_supervisor FROM proyecto_supervisor WHERE id_proyecto_supervisor = %s",
                    (proyecto_supervisor_id,))
     proyecto_supervisor = cursor.fetchone()
@@ -48,7 +49,7 @@ def get_proyecto_supervisor(proyecto_supervisor_id: int):
 def update_proyecto_supervisor(proyecto_supervisor_id: int, proyecto_supervisor: ProyectoSupervisor):
     connection = get_connection()
     cursor = connection.cursor()
-
+    # buscar por nombre de super
     cursor.execute(
         "UPDATE proyecto_supervisor SET id_proyecto=%s, id_supervisor=%s WHERE id_proyecto_supervisor = %s RETURNING id_proyecto_supervisor",
         (proyecto_supervisor.id_proyecto, proyecto_supervisor.id_supervisor, proyecto_supervisor_id),
@@ -68,7 +69,7 @@ def update_proyecto_supervisor(proyecto_supervisor_id: int, proyecto_supervisor:
 def delete_proyecto_supervisor(proyecto_supervisor_id: int):
     connection = get_connection()
     cursor = connection.cursor()
-
+    # buscar por nombre de super
     cursor.execute("DELETE FROM proyecto_supervisor WHERE id_proyecto_supervisor = %s", (proyecto_supervisor_id,))
     connection.commit()
     connection.close()
