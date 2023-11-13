@@ -37,9 +37,6 @@ class ProyectoCreate(BaseModel):
 
 # Crear un nuevo proyecto
 # Crear un proyecto aceptadO
-
-from fastapi import HTTPException
-
 @appProyecto.post("/create/", response_model=ProyectoCreate)
 def create_proyecto(fecha_inicio: str, fecha_fin: str, prioridad: str, folio_solicitud: str):
     connection = get_connection()

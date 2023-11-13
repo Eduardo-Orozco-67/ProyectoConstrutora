@@ -1,5 +1,6 @@
 fastapi
 psycopg2-binary
 uvicorn
-pythom-jose
+python-jose
 python-jose[cryptography]
+datetime

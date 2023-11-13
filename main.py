@@ -67,14 +67,19 @@ def get_current_user(token: str = Depends(lambda jsonwebtoken: jsonwebtoken)):
     except JWTError:
         raise credentials_exception
 
-# Ruta para obtener el token JWT
+# Modelo para las credenciales del usuario en el cuerpo de la solicitud
+class UserCredentialsInBody(BaseModel):
+    username: str
+    password: str
+
+# Ruta para obtener el token JWT con credenciales en el cuerpo de la solicitud
 @app.post("/token", response_model=Token)
-async def login_for_access_token(username: str, password: str):
+async def login_for_access_token(credentials: UserCredentialsInBody):
     # Verifica las credenciales del usuario
-    if verify_user_credentials(username, password):
+    if verify_user_credentials(credentials.username, credentials.password):
         # Credenciales válidas, crea y devuelve el token JWT
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        return {"access_token": create_jwt_token(data={"sub": username}, expires_delta=access_token_expires), "token_type": "bearer"}
+        return {"access_token": create_jwt_token(data={"sub": credentials.username}, expires_delta=access_token_expires), "token_type": "bearer"}
     else:
         # Credenciales inválidas, devuelve un error 401 Unauthorized
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
@@ -94,17 +99,21 @@ from api.servicioDetalleSolicitud import appServicioDetalleSolicitud
 from api.supervisor import appSupervisor
 from api.proyectoSupervisor import appProyectoSupervisor
 from api.colaborador import appColaborador
+from api.reportes import appProyectoSolicitud
+from api.usuarios import appUsuarios
 
 # Inclusión de los routers de las API
 app.include_router(appEmpresa, prefix="/empresa", tags=["empresa"], dependencies=[Depends(get_current_user)])
 app.include_router(appSolicitudProyecto, prefix="/solicitud_proyecto", tags=["solicitud_proyecto"], dependencies=[Depends(get_current_user)])
-app.include_router(appProyecto, prefix="/proyecto", tags=["proyecto"], dependencies=[Depends(get_current_user)])
-app.include_router(appServicio, prefix="/servicio", tags=["servicio"], dependencies=[Depends(get_current_user)])
 app.include_router(appDetalleSolicitud, prefix="/detalle_solicitud", tags=["detalle_solicitud"], dependencies=[Depends(get_current_user)])
 app.include_router(appServicioDetalleSolicitud, prefix="/servicio_detalle_solicitud", tags=["servicio_detalle_solicitud"], dependencies=[Depends(get_current_user)])
+app.include_router(appProyecto, prefix="/proyecto", tags=["proyecto"], dependencies=[Depends(get_current_user)])
+app.include_router(appServicio, prefix="/servicio", tags=["servicio"], dependencies=[Depends(get_current_user)])
 app.include_router(appSupervisor, prefix="/supervisor", tags=["supervisor"], dependencies=[Depends(get_current_user)])
-app.include_router(appProyectoSupervisor, prefix="/proyecto_supervisor", tags=["proyecto_supervisor"], dependencies=[Depends(get_current_user)])
 app.include_router(appColaborador, prefix="/colaborador", tags=["colaborador"], dependencies=[Depends(get_current_user)])
+app.include_router(appProyectoSupervisor, prefix="/proyecto_supervisor", tags=["proyecto_supervisor"], dependencies=[Depends(get_current_user)])
+app.include_router(appProyectoSolicitud, prefix="/reportes", tags=["reportes"], dependencies=[Depends(get_current_user)])
+app.include_router(appUsuarios, prefix="/usuarios", tags=["usuarios"])
 
 # Inicia la aplicación
 if __name__ == "__main__":

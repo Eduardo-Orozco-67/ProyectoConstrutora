@@ -208,3 +208,24 @@ SET DEFAULT NEXTVAL('proyecto_supervisor_id_proyecto_supervisor');
 ALTER TABLE colaborador
 ALTER COLUMN id_colaborador
 SET DEFAULT NEXTVAL('colaborador_id_colaborador');
+
+
+-- creamos tablas para el login:
+CREATE SEQUENCE empleado_id_empleado;
+CREATE SEQUENCE cliente_id_cliente;
+
+CREATE TABLE empleado (
+    id_empleado INT DEFAULT NEXTVAL('empleado_id_empleado') PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    apellido VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE cliente (
+    id_cliente INT DEFAULT NEXTVAL('cliente_id_cliente') PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    apellido VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
