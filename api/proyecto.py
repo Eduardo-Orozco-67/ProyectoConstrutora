@@ -51,7 +51,7 @@ def create_proyecto(fecha_inicio: str, fecha_fin: str, prioridad: str, folio_sol
             raise HTTPException(status_code=400, detail="Ya existe un proyecto asociado a esta solicitud")
 
         # Llamar al procedimiento almacenado y obtener el resultado
-        cursor.execute("CALL guardar_proyecto_aceptado(%s, %s, %s, %s, NULL, NULL)",
+        cursor.execute("CALL guardar_proyecto_aceptado(%s, %s, %s, %s, NULL)",
                        (fecha_inicio, fecha_fin, prioridad, folio_solicitud))
 
         # Obtener el resultado del procedimiento almacenado (pRes)
