@@ -12,9 +12,15 @@ class Colaborador(BaseModel):
     telefono: int
     correo: str
 
+class ColaboradorCreate(BaseModel):
+    nombre: str
+    cargo: str
+    telefono: int
+    correo: str
+
 # Crear un nuevo colaborador
-@appColaborador.post("/create/", response_model=Colaborador)
-def create_colaborador(colaborador: Colaborador):
+@appColaborador.post("/create/", response_model=ColaboradorCreate)
+def create_colaborador(colaborador: ColaboradorCreate, telefono_supervisor: int):
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -27,11 +33,18 @@ def create_colaborador(colaborador: Colaborador):
         if existing_colaborador:
             raise HTTPException(status_code=400, detail="Ya existe un colaborador con el mismo teléfono o correo")
 
-        # Insertar el nuevo colaborador
+        # Buscar al supervisor por el número de teléfono
+        cursor.execute("SELECT id_supervisor FROM supervisor WHERE telefono = %s", (telefono_supervisor,))
+        supervisor_id = cursor.fetchone()
+
+        if not supervisor_id:
+            raise HTTPException(status_code=404, detail="Supervisor no encontrado")
+
+        # Insertar el nuevo colaborador con el ID del supervisor
         cursor.execute(
             "INSERT INTO colaborador (id_supervisor, nombre, cargo, telefono, correo) "
             "VALUES (%s, %s, %s, %s, %s) RETURNING id_colaborador",
-            (colaborador.id_supervisor, colaborador.nombre, colaborador.cargo, colaborador.telefono, colaborador.correo),
+            (supervisor_id[0], colaborador.nombre, colaborador.cargo, colaborador.telefono, colaborador.correo),
         )
 
         new_colaborador_id = cursor.fetchone()[0]
@@ -45,6 +58,7 @@ def create_colaborador(colaborador: Colaborador):
         connection.close()
 
     return {**colaborador.dict(), "id_colaborador": new_colaborador_id}
+
 
 # Eliminar un colaborador por su teléfono y correo
 @appColaborador.delete("/delete/{telefono}/{correo}", response_model=dict)

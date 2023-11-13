@@ -10,85 +10,132 @@ class ServicioDetalleSolicitud(BaseModel):
     id_detalle_solicitud: int
     id_solicitud: int
 
+class ServicioResponse(BaseModel):
+    id_servicio: int
+    servicio: str
+
 # Crear una nueva relación entre servicio y detalle de solicitud
 @appServicioDetalleSolicitud.post("/create/", response_model=ServicioDetalleSolicitud)
-def create_servicio_detalle_solicitud(servicio_detalle_solicitud: ServicioDetalleSolicitud):
+def create_servicio_detalle_solicitud(
+    id_servicio: int,
+    folio_solicitud: str
+):
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute(
-        "INSERT INTO servicio_detalle_solicitud (id_servicio, id_detalle_solicitud, id_solicitud) "
-        "VALUES (%s, %s, %s) RETURNING id_servicio_detalle_solicitud",
-        (servicio_detalle_solicitud.id_servicio, servicio_detalle_solicitud.id_detalle_solicitud,
-         servicio_detalle_solicitud.id_solicitud),
-    )
+    try:
+        # Obtener el id_solicitud correspondiente al folio_solicitud
+        cursor.execute(
+            "SELECT sp.id_solicitud, ds.id_detalle_solicitud "
+            "FROM detalle_solicitud ds "
+            "INNER JOIN solicitud_proyecto sp ON ds.id_solicitud = sp.id_solicitud "
+            "WHERE sp.folio_solicitud = %s",
+            (folio_solicitud,)
+        )
+        result = cursor.fetchone()
 
-    new_servicio_detalle_solicitud_id = cursor.fetchone()[0]
-    connection.commit()
-    connection.close()
+        if result is None:
+            raise HTTPException(status_code=404, detail="Solicitud de proyecto no encontrada")
 
-    return {**servicio_detalle_solicitud.dict(), "id_servicio_detalle_solicitud": new_servicio_detalle_solicitud_id}
+        id_solicitud, id_detalle_solicitud = result
 
-# Obtener una relación entre servicio y detalle de solicitud por su ID
-@appServicioDetalleSolicitud.get("/ver/{servicio_detalle_solicitud_id}", response_model=ServicioDetalleSolicitud)
-def get_servicio_detalle_solicitud(servicio_detalle_solicitud_id: int):
+        # Insertar el nuevo servicio_detalle_solicitud
+        cursor.execute(
+            "INSERT INTO servicio_detalle_solicitud (id_servicio, id_detalle_solicitud, id_solicitud) "
+            "VALUES (%s, %s, %s) RETURNING id_servicio_detalle_solicitud",
+            (id_servicio, id_detalle_solicitud, id_solicitud),
+        )
+
+        new_servicio_detalle_solicitud_id = cursor.fetchone()[0]
+        connection.commit()
+
+    except Exception as e:
+        connection.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al crear el servicio_detalle_solicitud: {str(e)}")
+
+    finally:
+        connection.close()
+
+    return {
+        "id_servicio_detalle_solicitud": new_servicio_detalle_solicitud_id,
+        "id_servicio": id_servicio,
+        "id_detalle_solicitud": id_detalle_solicitud,
+        "id_solicitud": id_solicitud,
+    }
+
+
+# Obtener una relación entre servicio y detalle de solicitud por folio
+@appServicioDetalleSolicitud.get("/ver-servicios-folio/{folio_solicitud}", response_model=list[ServicioResponse])
+def get_servicios_by_detalle_solicitud(folio_solicitud: str):
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute("SELECT id_servicio, id_detalle_solicitud, id_solicitud FROM servicio_detalle_solicitud WHERE id_servicio_detalle_solicitud = %s",
-                   (servicio_detalle_solicitud_id,))
-    servicio_detalle_solicitud = cursor.fetchone()
-    connection.close()
+    try:
+        # Obtener el id_solicitud correspondiente al folio_solicitud
+        cursor.execute(
+            "SELECT sp.id_solicitud, sds.id_servicio, sds.id_detalle_solicitud "
+            "FROM servicio_detalle_solicitud sds "
+            "INNER JOIN detalle_solicitud ds ON sds.id_detalle_solicitud = ds.id_detalle_solicitud "
+            "INNER JOIN solicitud_proyecto sp ON ds.id_solicitud = sp.id_solicitud "
+            "WHERE sp.folio_solicitud = %s",
+            (folio_solicitud,)
+        )
+        result = cursor.fetchone()
 
-    if servicio_detalle_solicitud is None:
-        raise HTTPException(status_code=404, detail="Relación servicio-detalle-solicitud no encontrada")
+        if result is None:
+            raise HTTPException(status_code=404, detail="Solicitud de proyecto no encontrada")
 
-    return {"id_servicio_detalle_solicitud": servicio_detalle_solicitud_id, "id_servicio": servicio_detalle_solicitud[0],
-            "id_detalle_solicitud": servicio_detalle_solicitud[1], "id_solicitud": servicio_detalle_solicitud[2]}
+        id_solicitud, _, id_detalle_solicitud = result  # Corregir aquí
 
-# Actualizar una relación entre servicio y detalle de solicitud por su ID
-@appServicioDetalleSolicitud.put("/update/{servicio_detalle_solicitud_id}", response_model=ServicioDetalleSolicitud)
-def update_servicio_detalle_solicitud(servicio_detalle_solicitud_id: int, servicio_detalle_solicitud: ServicioDetalleSolicitud):
+        # Obtener todos los servicios que comparten el mismo id de detalle y solicitud
+        cursor.execute(
+            "SELECT s.id_servicio, s.servicio "
+            "FROM servicio_detalle_solicitud sds "
+            "INNER JOIN servicio s ON sds.id_servicio = s.id_servicio "
+            "WHERE sds.id_detalle_solicitud = %s AND sds.id_solicitud = %s",
+            (id_detalle_solicitud, id_solicitud)
+        )
+        servicios = cursor.fetchall()
+
+    finally:
+        connection.close()
+
+    servicios_list = [ServicioResponse(id_servicio=servicio[0], servicio=servicio[1]) for servicio in servicios]
+    return servicios_list
+
+# eliminar un servicio en especifico de un folio en especifico
+@appServicioDetalleSolicitud.delete("/delete/{folio_solicitud}/{id_servicio}", response_model=dict)
+def delete_servicio_detalle_solicitud(folio_solicitud: str, id_servicio: int):
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute(
-        "UPDATE servicio_detalle_solicitud SET id_servicio=%s, id_detalle_solicitud=%s, id_solicitud=%s "
-        "WHERE id_servicio_detalle_solicitud = %s RETURNING id_servicio_detalle_solicitud",
-        (servicio_detalle_solicitud.id_servicio, servicio_detalle_solicitud.id_detalle_solicitud,
-         servicio_detalle_solicitud.id_solicitud, servicio_detalle_solicitud_id),
-    )
+    try:
+        # Obtener el id_solicitud correspondiente al folio_solicitud
+        cursor.execute(
+            "SELECT sp.id_solicitud, sds.id_servicio_detalle_solicitud "
+            "FROM servicio_detalle_solicitud sds "
+            "INNER JOIN detalle_solicitud ds ON sds.id_detalle_solicitud = ds.id_detalle_solicitud "
+            "INNER JOIN solicitud_proyecto sp ON ds.id_solicitud = sp.id_solicitud "
+            "WHERE sp.folio_solicitud = %s AND sds.id_servicio = %s",
+            (folio_solicitud, id_servicio)
+        )
+        result = cursor.fetchone()
 
-    updated_servicio_detalle_solicitud_id = cursor.fetchone()[0]
-    connection.commit()
-    connection.close()
+        if result is None:
+            raise HTTPException(status_code=404, detail="Relación servicio-detalle-solicitud no encontrada")
 
-    if updated_servicio_detalle_solicitud_id is None:
-        raise HTTPException(status_code=404, detail="Relación servicio-detalle-solicitud no encontrada")
+        _, id_servicio_detalle_solicitud = result
 
-    return {**servicio_detalle_solicitud.dict(), "id_servicio_detalle_solicitud": updated_servicio_detalle_solicitud_id}
+        # Eliminar la relación servicio-detalle-solicitud
+        cursor.execute("DELETE FROM servicio_detalle_solicitud WHERE id_servicio_detalle_solicitud = %s",
+                       (id_servicio_detalle_solicitud,))
+        connection.commit()
 
-# Eliminar una relación entre servicio y detalle de solicitud por su ID
-@appServicioDetalleSolicitud.delete("/delete/{servicio_detalle_solicitud_id}", response_model=dict)
-def delete_servicio_detalle_solicitud(servicio_detalle_solicitud_id: int):
-    connection = get_connection()
-    cursor = connection.cursor()
+    except Exception as e:
+        connection.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al eliminar la relación servicio-detalle-solicitud: {str(e)}")
 
-    cursor.execute("DELETE FROM servicio_detalle_solicitud WHERE id_servicio_detalle_solicitud = %s", (servicio_detalle_solicitud_id,))
-    connection.commit()
-    connection.close()
+    finally:
+        connection.close()
 
     return {"message": "Relación servicio-detalle-solicitud eliminada"}
-
-# Obtener todas las relaciones entre servicio y detalle de solicitud
-@appServicioDetalleSolicitud.get("/ver-todos/", response_model=list[ServicioDetalleSolicitud])
-def get_servicios_detalle_solicitud():
-    connection = get_connection()
-    cursor = connection.cursor()
-
-    cursor.execute("SELECT id_servicio_detalle_solicitud, id_servicio, id_detalle_solicitud, id_solicitud FROM servicio_detalle_solicitud")
-    servicios_detalle_solicitud = cursor.fetchall()
-    connection.close()
-
-    return [{"id_servicio_detalle_solicitud": servicio[0], "id_servicio": servicio[1],
-            "id_detalle_solicitud": servicio[2], "id_solicitud": servicio[3]} for servicio in servicios_detalle_solicitud]

@@ -23,8 +23,6 @@ class SolicitudProyectover(BaseModel):
     estado: str
 
 # Crear una nueva solicitud de proyecto
-from fastapi import HTTPException
-
 @appSolicitudProyecto.post("/create/", response_model=SolicitudProyecto)
 def create_solicitud_proyecto(
     nombre_empresa: str,
@@ -82,7 +80,6 @@ def create_solicitud_proyecto(
         "id_solicitud": new_solicitud_id
     }
 
-
 # Obtener una solicitud de proyecto por su folio_solicitud
 @appSolicitudProyecto.get("/ver1/{folio_solicitud}", response_model=SolicitudProyectover)
 def get_solicitud_proyecto_by_folio(folio_solicitud: str):
@@ -92,7 +89,10 @@ def get_solicitud_proyecto_by_folio(folio_solicitud: str):
     cursor.execute(
         "SELECT s.id_solicitud, e.nombre as nombre_empresa, s.fecha, s.monto_presupuesto, s.monto_anticipo, s.folio_solicitud, s.estado "
         "FROM solicitud_proyecto s "
-        "INNER JOIN empresa e ON s.id_empresa = e.id_empresa")
+        "INNER JOIN empresa e ON s.id_empresa = e.id_empresa "
+        "WHERE s.folio_solicitud = %s",  # Agregar la condición WHERE
+        (folio_solicitud,)
+    )
     solicitud = cursor.fetchone()
     connection.close()
 
@@ -108,6 +108,7 @@ def get_solicitud_proyecto_by_folio(folio_solicitud: str):
         "folio_solicitud": solicitud[5],
         "estado": solicitud[6],
     }
+
 
 # Actualizar una solicitud de proyecto por su folio_solicitud
 @appSolicitudProyecto.put("/update/{folio_solicitud}", response_model=SolicitudProyecto)
