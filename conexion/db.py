@@ -6,7 +6,7 @@ def get_connection():
         dbname="constructora",
         user="constructora_user",
         password="3mxhSYupgYNxm1L4Cs6V1k9UYLJBFyXS",
-        host="postgres://constructora_user:3mxhSYupgYNxm1L4Cs6V1k9UYLJBFyXS@dpg-claduqpm6hds73ehit2g-a/constructora",
+        host="dpg-claduqpm6hds73ehit2g-a.oregon-postgres.render.com",
         port="5432"
     )
     return connection
