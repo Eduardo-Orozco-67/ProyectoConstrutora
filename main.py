@@ -7,7 +7,9 @@ from datetime import datetime, timedelta
 
 # Configuración de CORS
 origins = [
-    "http://localhost:5173",  # Agrega aquí el origen de tu aplicación cliente
+    "http://localhost:5173",
+    "http://localhost:3001",
+    # Agrega aquí el origen de tu aplicación cliente
 ]
 
 # Configuración de CORS Middleware

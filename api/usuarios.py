@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from conexion.db import get_connection
@@ -10,11 +11,17 @@ class UsuarioBase(BaseModel):
     email: str
     password: str
 
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
 class Empleado(UsuarioBase):
     id_empleado: int
+    password: Optional[str] = None
 
 class Cliente(UsuarioBase):
     id_cliente: int
+    password: Optional[str] = None
 
 # Crear empleado
 @appUsuarios.post("/empleados/", response_model=Empleado)
@@ -184,32 +191,32 @@ def get_all_clientes():
 
     return [{"id_cliente": cliente[0], "nombre": cliente[1], "apellido": cliente[2], "email": cliente[3]} for cliente in clientes]
 
-# Obtener un empleado por email
-@appUsuarios.get("/empleados/{email}", response_model=Empleado)
-def get_empleado_by_email(email: str):
+# Obtener un empleado por email y contraseña
+@appUsuarios.post("/empleados/login", response_model=Empleado)
+def login_empleado(request_body: LoginRequest):
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute("SELECT * FROM empleado WHERE email = %s", (email,))
+    cursor.execute("SELECT * FROM empleado WHERE email = %s AND password = %s", (request_body.email, request_body.password))
     empleado = cursor.fetchone()
     connection.close()
 
     if empleado:
-        return {"id_empleado": empleado[0], "nombre": empleado[1], "apellido": empleado[2], "email": empleado[3]}
+        return Empleado(**{"id_empleado": empleado[0], "nombre": empleado[1], "apellido": empleado[2], "email": empleado[3]})
     else:
-        raise HTTPException(status_code=404, detail=f"No se encontró empleado con email {email}")
+        raise HTTPException(status_code=404, detail="Credenciales incorrectas")
 
-# Obtener un cliente por email
-@appUsuarios.get("/clientes/{email}", response_model=Cliente)
-def get_cliente_by_email(email: str):
+# Obtener un cliente por email y contraseña
+@appUsuarios.post("/clientes/login", response_model=Cliente)
+def login_cliente(request_body: LoginRequest):
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute("SELECT * FROM cliente WHERE email = %s", (email,))
+    cursor.execute("SELECT * FROM cliente WHERE email = %s AND password = %s", (request_body.email, request_body.password))
     cliente = cursor.fetchone()
     connection.close()
 
     if cliente:
-        return {"id_cliente": cliente[0], "nombre": cliente[1], "apellido": cliente[2], "email": cliente[3]}
+        return Cliente(**{"id_cliente": cliente[0], "nombre": cliente[1], "apellido": cliente[2], "email": cliente[3]})
     else:
-        raise HTTPException(status_code=404, detail=f"No se encontró cliente con email {email}")
+        raise HTTPException(status_code=404, detail="Credenciales incorrectas")
