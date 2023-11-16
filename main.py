@@ -6,11 +6,7 @@ from typing import Optional
 from datetime import datetime, timedelta
 
 # Configuración de CORS
-origins = [
-    "http://localhost:5173",
-    "http://localhost:3001",
-    # Agrega aquí el origen de tu aplicación cliente
-]
+origins = ["*"]
 
 # Configuración de CORS Middleware
 app = FastAPI(title="APIRest de Constructora S.A de C.V",
