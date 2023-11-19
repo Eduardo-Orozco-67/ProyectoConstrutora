@@ -34,6 +34,10 @@ class ProyectoCreate(BaseModel):
     prioridad: str
     folio_solicitud: str
 
+def convertir_fecha(fecha_str):
+    # Convertir la fecha de "DD/MM/AAAA" a "AAAA-MM-DD"
+    fecha_obj = datetime.strptime(fecha_str, "%d/%m/%Y")
+    return fecha_obj.strftime("%Y-%m-%d")
 
 # Crear un nuevo proyecto
 # Crear un proyecto aceptadO
@@ -49,6 +53,9 @@ def create_proyecto(fecha_inicio: str, fecha_fin: str, prioridad: str, folio_sol
 
         if existing_proyecto:
             raise HTTPException(status_code=400, detail="Ya existe un proyecto asociado a esta solicitud")
+
+        fecha_inicio = convertir_fecha(fecha_inicio)
+        fecha_fin = convertir_fecha(fecha_fin)
 
         # Llamar al procedimiento almacenado y obtener el resultado
         cursor.execute("CALL guardar_proyecto_aceptado(%s, %s, %s, %s, NULL)",
