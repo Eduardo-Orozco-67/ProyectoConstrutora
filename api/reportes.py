@@ -70,7 +70,7 @@ def get_proyectos_solicitud():
         "INNER JOIN solicitud_proyecto sp ON p.id_solicitud = sp.id_solicitud "
         "INNER JOIN empresa e ON sp.id_empresa = e.id_empresa "
         "INNER JOIN detalle_solicitud ds ON sp.id_solicitud = ds.id_solicitud "
-        "WHERE p.porcentaje_avance > 10;"
+        "WHERE p.porcentaje_avance > 49;"
     )
 
     proyectos_solicitud = cursor.fetchall()
